@@ -43,28 +43,42 @@ The script:
 4. Execute the script:
 
 ```powershell
+
 .\CreateUsersAndGroups.ps1
+
+```
 
 ---
 
-### 🧩 How to assign users to multiple groups (optional enhancement)
+
+### ✳️ Assigning users to multiple groups (optional enhancement)
 
 By default, the script reads one group per user from the `Group` column in the CSV file.  
 If you want to assign users to **multiple groups**, here are two common approaches:
 
-#### Option 1: Use a comma-separated list in the CSV
+#### ➤ Option 1: Use a comma-separated list in the CSV
 
 ```csv
+
 DisplayName,UserPrincipalName,MailNickname,Password,Group
 Jane Doe,jane@domain.com,jane,password123,"HR,Finance,RemoteAccess"
 
-You would then need to modify the script so it:
+
+You would need to modify the script so it:
+
     Splits the Group string by comma
+
     Iterates over each group name
+
     Ensures each group exists and adds the user to all of them
 
-    🛠 This logic is not included in the current version of the script, but can be easily added with a foreach loop over the groups.
+    ⚠️ This logic is not included in the current version of the script, but can be easily added with a foreach loop.
 
-Option 2: Use an additional column per group (not recommended for scale)
-This approach requires adding Group1, Group2, etc., as separate columns in the CSV. It's less flexible and harder to maintain.
-Let me know if you’d like a future version of the script with multi-group support built-in.
+➤ Option 2: Use an additional column per group (not recommended for scale)
+
+This method requires adding Group1, Group2, etc., as separate columns.
+It’s less flexible and harder to maintain in larger environments.
+
+Let me know if you'd like a future version of the script with multi-group support built-in.
+```
+
