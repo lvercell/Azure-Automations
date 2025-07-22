@@ -37,4 +37,4 @@ IT Infrastructure & Cloud Automation | Microsoft ecosystem | AI-driven Ops
 
 ---
 
-> ⚠️ Warning: No real user data or sensitive credentials are included. All secrets are masked. Please use your own secure credentials and permissions when replicating this lab.
+> ⚠️ Warning: No real user data or sensitive credentials are included. Please use your own secure credentials and permissions when replicating this lab.
