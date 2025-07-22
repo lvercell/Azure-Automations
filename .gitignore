@@ -1,0 +1,28 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore PowerShell history
+*.pshistory
+
+# Ignore PDF or docs generated locally
+*.pdf
+*.docx
+*.xlsx
+
+# VS Code and PowerShell artifacts
+.vscode/
+*.ps1~
+*.backup.ps1
+
+# Ignore test output and temp files
+__pycache__/
+*.log
+*.tmp
+
+# Ignore environment files (if used later)
+.env
+.env.*
+
+# Ignore ZIPs or lab exports
+*.zip
