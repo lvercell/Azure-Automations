@@ -1,0 +1,86 @@
+# Azure Provisioning with Terraform and Ansible
+
+This lab demonstrates how to provision and configure a secure Windows-based virtual machine in Azure using **Terraform** and **Ansible**, simulating an Azure Virtual Desktop (AVD)-like environment for testing and learning purposes.
+
+The entire setup is designed to avoid commercial licensing costs by leveraging **trial software**, **free-tier VM sizes**, and **open-source tools**.
+
+---
+
+## 🧭 Project Goals
+
+- Provision a secure and customizable Windows VM in Azure.
+- Automate network, compute, and security resources using **Terraform**.
+- Configure the Windows OS using **Ansible + WinRM**:
+  - Hardening settings (firewall, RDP port, Defender, policies)
+  - Installation of software (Adobe Reader, LibreOffice, browsers, etc.)
+- Enable access via RDP (on a custom port) or Azure Bastion.
+- Join the VM to Entra ID (Azure AD) or an optional test domain.
+
+---
+
+## 🛠️ Technologies Used
+
+Tool           | Purpose
+-------------- | ----------------------------------------------
+Terraform       | Infrastructure provisioning
+Ansible         | OS configuration & software install
+Azure           | Cloud environment
+WinRM           | Remote execution on Windows
+Chocolatey      | Windows software package manager
+LibreOffice / Adobe Reader | Trial/free software for testing
+
+---
+
+## 📁 Project Structure
+
+Azure Provisioning with Terraform and Ansible/
+├── terraform/                      → Terraform code for Azure resources  
+├── ansible/                        → Ansible playbooks and roles  
+│   └── roles/windows_config/       → Tasks to configure the Windows VM  
+├── docs/                           → Documentation and screenshots  
+├── .gitignore  
+└── README.md
+
+---
+
+## 🚀 Quick Start
+
+🔹 1. Clone the Repository  
+git clone https://github.com/lvercell/Azure-Automations.git  
+cd "Azure-Automations/Azure Provisioning with Terraform and Ansible"
+
+🔹 2. Configure Terraform  
+Edit `terraform/variables.tf` to set your Azure Subscription ID, region, and resource naming.
+
+🔹 3. Initialize Terraform  
+cd terraform  
+terraform init  
+terraform plan  
+terraform apply
+
+🔹 4. Configure the VM with Ansible  
+cd ../ansible  
+ansible-playbook -i hosts.ini playbook.yml
+
+---
+
+## ⚠️ Legal and Licensing Notes
+
+- This project is intended for **educational and testing purposes only**.
+- Office software used is either **trial-based or open-source (LibreOffice)**.
+- Adobe Reader is installed using Chocolatey and subject to its [EULA](https://www.adobe.com/legal/licenses-terms.html).
+
+---
+
+## 📸 Screenshots & Diagrams
+
+See the `/docs/screenshots` folder for visual steps and architecture diagrams (to be added).
+
+---
+
+## 👨‍💻 Author
+
+**Lucas Román Vercellini**  
+🔗 [LinkedIn](https://www.linkedin.com/in/lucas-vercellini/)  
+🔗 [GitHub](https://github.com/lvercell)  
+Built as part of a professional learning and automation showcase.
