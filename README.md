@@ -1,5 +1,5 @@
 # Azure Automations 🚀
-
+(in development)
 This repository is a personal collection of practical automation scripts, infrastructure-as-code samples, and technical labs focused on the Microsoft Azure ecosystem.
 
 These examples are based on real scenarios and learning paths related to:
