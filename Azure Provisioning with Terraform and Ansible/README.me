@@ -1,86 +1,53 @@
-# Azure Provisioning with Terraform and Ansible (in development, testing phase)
+# 🚀 Azure Automations
 
-This lab demonstrates how to provision and configure a secure Windows-based virtual machine in Azure using **Terraform** and **Ansible**, simulating an Azure Virtual Desktop (AVD)-like environment for testing and learning purposes.
+(in development)  
+This repository is a personal collection of automation labs, infrastructure-as-code examples, and technical experiments on the **Microsoft Azure ecosystem**.
 
-The entire setup is designed to avoid commercial licensing costs by leveraging **trial software**, **free-tier VM sizes**, and **open-source tools**.
-
----
-
-## 🧭 Project Goals
-
-- Provision a secure and customizable Windows VM in Azure.
-- Automate network, compute, and security resources using **Terraform**.
-- Configure the Windows OS using **Ansible + WinRM**:
-  - Hardening settings (firewall, RDP port, Defender, policies)
-  - Installation of software (Adobe Reader, LibreOffice, browsers, etc.)
-- Enable access via RDP (on a custom port) or Azure Bastion.
-- Join the VM to Entra ID (Azure AD) or an optional test domain.
+These labs are based on real-world experience and continuous learning, designed to be shared and replicated.
 
 ---
 
-## 🛠️ Technologies Used
+## 🧭 Focus Areas
 
-Tool           | Purpose
--------------- | ----------------------------------------------
-Terraform       | Infrastructure provisioning
-Ansible         | OS configuration & software install
-Azure           | Cloud environment
-WinRM           | Remote execution on Windows
-Chocolatey      | Windows software package manager
-LibreOffice / Adobe Reader | Trial/free software for testing
-
----
-
-## 📁 Project Structure
-
-Azure Provisioning with Terraform and Ansible/
-├── terraform/                      → Terraform code for Azure resources  
-├── ansible/                        → Ansible playbooks and roles  
-│   └── roles/windows_config/       → Tasks to configure the Windows VM  
-├── docs/                           → Documentation and screenshots  
-├── .gitignore  
-└── README.md
+- ✅ Azure Active Directory (Microsoft Entra ID)
+- ✅ Microsoft Graph API (PowerShell + REST)
+- ✅ Lifecycle automation for users and groups
+- ✅ Terraform + Ansible for infrastructure and VM provisioning
+- ✅ Azure Virtual Desktop (AVD) automation labs
+- ✅ PowerShell scripting for Azure environments
+- 🧪 More tools and experiments coming soon
 
 ---
 
-## 🚀 Quick Start
+## 📂 Repository Structure
 
-🔹 1. Clone the Repository  
-git clone https://github.com/lvercell/Azure-Automations.git  
-cd "Azure-Automations/Azure Provisioning with Terraform and Ansible"
-
-🔹 2. Configure Terraform  
-Edit `terraform/variables.tf` to set your Azure Subscription ID, region, and resource naming.
-
-🔹 3. Initialize Terraform  
-cd terraform  
-terraform init  
-terraform plan  
-terraform apply
-
-🔹 4. Configure the VM with Ansible  
-cd ../ansible  
-ansible-playbook -i hosts.ini playbook.yml
+| Folder                                      | Description                                              |
+|--------------------------------------------|----------------------------------------------------------|
+| `user-provisioning/`                        | Automate creation of users and groups via Graph API      |
+| `Azure Provisioning with Terraform and Ansible/` | Hybrid lab: Terraform, Ansible & Entra Sync (AVD-style) |
+| `docs/`                                     | PDF manuals, screenshots and diagrams                    |
 
 ---
 
-## ⚠️ Legal and Licensing Notes
+## 🏁 Getting Started
 
-- This project is intended for **educational and testing purposes only**.
-- Office software used is either **trial-based or open-source (LibreOffice)**.
-- Adobe Reader is installed using Chocolatey and subject to its [EULA](https://www.adobe.com/legal/licenses-terms.html).
-
----
-
-## 📸 Screenshots & Diagrams
-
-See the `/docs/screenshots` folder for visual steps and architecture diagrams (to be added).
+Each folder contains a dedicated README with usage instructions and prerequisites.  
+You can begin with the [`Azure Provisioning with Terraform and Ansible`](./Azure%20Provisioning%20with%20Terraform%20and%20Ansible/) lab if you want a full hybrid setup.
 
 ---
 
 ## 👨‍💻 Author
 
 **Lucas Román Vercellini**  
-🔗 [LinkedIn](https://www.linkedin.com/in/lucas-vercellini/)  
-🔗 [GitHub](https://github.com/lvercell)  
-Built as part of a professional learning and automation showcase.
+🧠 IT Professional · Infrastructure & Automation · Lifelong Learner  
+🔗 [LinkedIn](https://www.linkedin.com/in/lucas-vercellini)  
+🔗 [GitHub](https://github.com/lvercell)
+
+---
+
+## 📖 License
+
+This project is open for learning and professional use.  
+Feel free to fork and adapt. No warranties provided.
+
+License: MIT or unrestricted (no license file yet).
