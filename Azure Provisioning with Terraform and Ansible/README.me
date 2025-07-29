@@ -1,53 +1,80 @@
-# 🚀 Azure Automations
+# 🧪 Azure Provisioning with Terraform and Ansible
 
-(in development)  
-This repository is a personal collection of automation labs, infrastructure-as-code examples, and technical experiments on the **Microsoft Azure ecosystem**.
+This lab demonstrates how to provision and configure a secure Windows-based virtual machine in Azure using **Terraform** and **Ansible**, simulating an Azure Virtual Desktop (AVD)-like environment for testing and learning purposes.
 
-These labs are based on real-world experience and continuous learning, designed to be shared and replicated.
-
----
-
-## 🧭 Focus Areas
-
-- ✅ Azure Active Directory (Microsoft Entra ID)
-- ✅ Microsoft Graph API (PowerShell + REST)
-- ✅ Lifecycle automation for users and groups
-- ✅ Terraform + Ansible for infrastructure and VM provisioning
-- ✅ Azure Virtual Desktop (AVD) automation labs
-- ✅ PowerShell scripting for Azure environments
-- 🧪 More tools and experiments coming soon
+The entire setup is designed to avoid commercial licensing costs by leveraging **trial software**, **free-tier VM sizes**, and **open-source tools**.
 
 ---
 
-## 📂 Repository Structure
+## 🎯 Project Goals
 
-| Folder                                      | Description                                              |
-|--------------------------------------------|----------------------------------------------------------|
-| `user-provisioning/`                        | Automate creation of users and groups via Graph API      |
-| `Azure Provisioning with Terraform and Ansible/` | Hybrid lab: Terraform, Ansible & Entra Sync (AVD-style) |
-| `docs/`                                     | PDF manuals, screenshots and diagrams                    |
-
----
-
-## 🏁 Getting Started
-
-Each folder contains a dedicated README with usage instructions and prerequisites.  
-You can begin with the [`Azure Provisioning with Terraform and Ansible`](./Azure%20Provisioning%20with%20Terraform%20and%20Ansible/) lab if you want a full hybrid setup.
+- Provision a secure and customizable Windows VM in Azure.
+- Automate network, compute, and security resources using **Terraform**.
+- Configure the Windows OS using **Ansible + WinRM**:
+  - Hardening settings (firewall, RDP port, Defender, policies)
+  - Installation of trial/open-source software (LibreOffice, Adobe Reader)
+- Enable access via RDP (custom port) or Azure Bastion.
+- Join the VM to Entra ID (Azure AD) or a test domain.
 
 ---
 
-## 👨‍💻 Author
+## 🛠️ Technologies Used
 
-**Lucas Román Vercellini**  
-🧠 IT Professional · Infrastructure & Automation · Lifelong Learner  
-🔗 [LinkedIn](https://www.linkedin.com/in/lucas-vercellini)  
-🔗 [GitHub](https://github.com/lvercell)
+| Tool               | Purpose                                  |
+|--------------------|------------------------------------------|
+| Terraform          | Infrastructure provisioning              |
+| Ansible            | OS configuration & software install      |
+| Azure              | Cloud platform                           |
+| WinRM              | Remote execution for Windows VMs         |
+| Chocolatey         | Windows package manager                  |
+| LibreOffice / Adobe Reader | Testing apps (free/trial)         |
 
 ---
 
-## 📖 License
+## 📁 Project Structure
+Azure Provisioning with Terraform and Ansible/
+├── terraform/ → Terraform scripts for Azure infra
+├── ansible/ → Ansible playbooks and roles
+│ └── roles/windows_config/ → Hardening and config tasks
+├── docs/ → PDF guides and screenshots
+├── .gitignore
+└── README.md
 
-This project is open for learning and professional use.  
-Feel free to fork and adapt. No warranties provided.
 
-License: MIT or unrestricted (no license file yet).
+---
+
+## 🚀 Quick Start
+
+
+# 1. Clone the repository
+git clone https://github.com/lvercell/Azure-Automations.git  
+cd "Azure-Automations/Azure Provisioning with Terraform and Ansible"
+
+# 2. Initialize Terraform
+cd terraform  
+terraform init  
+terraform plan -var-file="lab.tfvars"  
+terraform apply -var-file="lab.tfvars"
+
+# 3. Configure Windows VM using Ansible
+cd ../ansible  
+ansible-playbook -i hosts.ini playbook.yml
+
+📖 Documentation
+
+You can find step-by-step guides and screenshots in the /docs folder.
+The manuals are also being published on LinkedIn.
+⚠️ Licensing & Legal Notes
+
+    For educational and professional learning only.
+
+    Office software used is either trial-based or open-source (LibreOffice).
+
+    Adobe Reader is installed using Chocolatey and is subject to its EULA.
+
+👨‍💻 Author
+
+Lucas Román Vercellini
+🔗 LinkedIn
+🔗 GitHub
+Built as part of a professional learning and automation showcase.
