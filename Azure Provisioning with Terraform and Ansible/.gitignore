@@ -1,5 +1,36 @@
+# Log files
+*.log
+
+# Exe files
+*.exe
+
+# Terraform state files
 *.tfstate
 *.tfstate.backup
+
+# Terraform plan output
+*.tfplan
+
+# Sensitive variable files
 *.tfvars
+*.tfvars.json
+
+# Override files (often used for local testing)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# .terraform dir used to store modules and providers
+.terraform/
+.terraform.lock.hcl
+
+# Ansible-related logs (si están en la misma raíz)
 *.log
-*.exe
+
+# IDE / OS metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
