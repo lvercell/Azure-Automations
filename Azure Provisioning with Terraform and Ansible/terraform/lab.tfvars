@@ -1,0 +1,5 @@
+location           = "eastus"
+vm_name            = "vm-avd-lab"
+vm_size            = "Standard_B2ms"
+vm_admin_username  = "lucas"
+vm_admin_password = "Admin$123456.#"

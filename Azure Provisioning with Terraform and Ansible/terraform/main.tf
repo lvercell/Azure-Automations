@@ -1,12 +1,12 @@
 resource "azurerm_resource_group" "main" {
-  name     = var.resource_group_name
+  name     = "rg-avd-lab"
   location = var.location
 }
 
 resource "azurerm_virtual_network" "main" {
   name                = "vnet-avd"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.main.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 }
 
@@ -19,65 +19,49 @@ resource "azurerm_subnet" "main" {
 
 resource "azurerm_network_security_group" "main" {
   name                = "nsg-avd"
-  location            = azurerm_resource_group.main.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
   security_rule {
-    name                       = "Allow-RDP-CustomPort"
+    name                       = "Allow-RDP"
     priority                   = 1001
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "49999" # puerto RDP personalizado
-    source_address_prefix      = "Internet"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "Allow-HTTP"
-    priority                   = 1002
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
+    destination_port_range     = "3389"
+    source_port_range          = "*"
   }
-}
-
-resource "azurerm_public_ip" "main" {
-  name                = "pip-avd"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  allocation_method   = "Static"
-  sku                 = "Basic"
 }
 
 resource "azurerm_network_interface" "main" {
   name                = "nic-avd"
-  location            = azurerm_resource_group.main.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
   ip_configuration {
     name                          = "ipconfig1"
     subnet_id                     = azurerm_subnet.main.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.main.id
+    # IP pública no definida explícitamente
   }
+}
 
+resource "azurerm_network_interface_security_group_association" "main" {
+  network_interface_id      = azurerm_network_interface.main.id
   network_security_group_id = azurerm_network_security_group.main.id
 }
 
 resource "azurerm_windows_virtual_machine" "main" {
   name                  = var.vm_name
   resource_group_name   = azurerm_resource_group.main.name
-  location              = azurerm_resource_group.main.location
+  location              = var.location
   size                  = var.vm_size
   admin_username        = var.vm_admin_username
   admin_password        = var.vm_admin_password
   network_interface_ids = [azurerm_network_interface.main.id]
+  provision_vm_agent    = true
 
   os_disk {
     caching              = "ReadWrite"
@@ -90,10 +74,6 @@ resource "azurerm_windows_virtual_machine" "main" {
     sku       = "win11-21h2-ent"
     version   = "latest"
   }
-
-  provision_vm_agent        = true
-  enable_automatic_updates  = true
-  time_zone                 = "W. Europe Standard Time"
 
   tags = {
     environment = "lab"
