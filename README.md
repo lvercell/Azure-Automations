@@ -1,37 +1,54 @@
-# Azure Automations 🚀
-(in development)
-This repository is a personal collection of practical automation scripts, infrastructure-as-code samples, and technical labs focused on the Microsoft Azure ecosystem.
+# 🚀 Azure Automations
 
-These examples are based on real scenarios and learning paths related to:
+(in development)  
+This repository is a personal collection of automation labs, infrastructure-as-code examples, and technical experiments on the **Microsoft Azure ecosystem**.
+
+These labs are based on real-world experience and continuous learning, designed to be shared and replicated.
+
+---
+
+## 🧭 Focus Areas
 
 - ✅ Azure Active Directory (Microsoft Entra ID)
 - ✅ Microsoft Graph API (PowerShell + REST)
-- ✅ User and group lifecycle automation
-- ✅ Infrastructure provisioning with Terraform and Ansible
-- ✅ Azure Virtual Desktop (AVD) experiments
+- ✅ Lifecycle automation for users and groups
+- ✅ Terraform + Ansible for infrastructure and VM provisioning
+- ✅ Azure Virtual Desktop (AVD) automation labs
 - ✅ PowerShell scripting for Azure environments
-- 🧪 Additional tools and custom labs coming soon
+- 🧪 More tools and experiments coming soon
 
 ---
 
-## 📂 Repository structure
+## 📂 Repository Structure
 
-| Folder              | Description                                      |
-|---------------------|--------------------------------------------------|
-| `user-provisioning/`| Automate creation of users and groups via Graph |
+| Folder                                      | Description                                              |
+|--------------------------------------------|----------------------------------------------------------|
+| `user-provisioning/`                        | Automate creation of users and groups via Graph API      |
+| `Azure Provisioning with Terraform and Ansible/` | Hybrid lab: Terraform, Ansible & Entra Sync (AVD-style) |
+
 
 ---
 
-## 🧑‍💻 Author
+## 🏁 Getting Started
 
-**Lucas Vercellini**  
-IT Professional · Infrastructure & Automation · Lifelong Learner  
-[LinkedIn Profile](https://www.linkedin.com/in/lucas-vercellini/)  
+Each folder contains a dedicated README with usage instructions and prerequisites.  
+You can begin with the [`Azure Provisioning with Terraform and Ansible`](./Azure%20Provisioning%20with%20Terraform%20and%20Ansible/) lab if you want a full hybrid setup.
+
+---
+
+## 👨‍💻 Author
+
+**Lucas Román Vercellini**  
+🧠 IT Professional · Infrastructure & Automation · Lifelong Learner  
+🔗 [LinkedIn](https://www.linkedin.com/in/lucas-vercellini)  
+🔗 [GitHub](https://github.com/lvercell)
 
 ---
 
 ## 📖 License
 
-This project is open for learning and sharing. You can use and adapt the content for educational or professional purposes. No warranty or liability is provided.
+This project is open for learning and professional use.  
+Feel free to fork and adapt. No warranties provided.
 
-MIT License or no license — feel free to fork and explore.
+License: MIT or unrestricted (no license file yet).
+
