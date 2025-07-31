@@ -25,7 +25,7 @@ These labs are based on real-world experience and continuous learning, designed 
 |--------------------------------------------|----------------------------------------------------------|
 | `user-provisioning/`                        | Automate creation of users and groups via Graph API      |
 | `Azure Provisioning with Terraform and Ansible/` | Hybrid lab: Terraform, Ansible & Entra Sync (AVD-style) |
-| `docs/`                                     | PDF manuals, screenshots and diagrams                    |
+
 
 ---
 
