@@ -37,7 +37,7 @@ LicenseAssignment/
 ├── scripts/
 │   └── CrearUsuariosConGrupos.ps1       # Creates users and assigns to groups
 ├── csv/
-│   │   ├── users.csv                        # Input file (main)
+│   ├── users.csv                        # Input file (main)
 │   └── created_users.csv                # Generated result (optional)
 ├── docs/
 │   └── 2 - Massive licences assignment with Azure Automation.pdf
