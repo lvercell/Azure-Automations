@@ -1,1 +1,13 @@
+- name: Join the VM to the domain
+  win_domain_membership:
+    dns_domain_name: lab.local
+    domain_admin_user: LAB\Administrator
+    domain_admin_password: LetmeIn$2025
+    state: domain
+  register: domain_join_result
 
+- name: Reboot after domain join
+  win_reboot:
+    msg: "Rebooting after domain join"
+    pre_reboot_delay: 10
+  when: domain_join_result.reboot_required

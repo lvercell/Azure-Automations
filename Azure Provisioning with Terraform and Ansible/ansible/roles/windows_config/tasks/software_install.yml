@@ -1,0 +1,25 @@
+---
+- name: Install Chocolatey
+  win_chocolatey:
+    name: chocolatey
+    state: present
+
+- name: Install Adobe Reader
+  win_chocolatey:
+    name: adobereader
+    state: present
+
+- name: Install LibreOffice
+  win_chocolatey:
+    name: libreoffice
+    state: present
+
+- name: Install Google Chrome
+  win_chocolatey:
+    name: googlechrome
+    state: present
+
+- name: Install Firefox
+  win_chocolatey:
+    name: firefox
+    state: present

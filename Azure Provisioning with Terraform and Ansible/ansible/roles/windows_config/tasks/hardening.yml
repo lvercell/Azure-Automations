@@ -1,0 +1,52 @@
+---
+# Rename built-in Administrator account (opcional, si ya creaste otro usuario)
+- name: Rename local Administrator account
+  win_user:
+    name: Administrador
+    new_name: adminlocal
+  ignore_errors: yes  # Por si ya fue renombrado
+
+# Ensure RDP port is standard (puede cambiarse más adelante)
+- name: Ensure RDP port is set to 3389
+  win_regedit:
+    path: HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp
+    name: PortNumber
+    data: 3389
+    type: dword
+  register: rdp_port_config
+
+# Enable Defender features (si están disponibles)
+- name: Enable Windows Defender features
+  win_feature:
+    name: Windows-Defender-Features
+    state: present
+  ignore_errors: yes
+
+# Enable Real-Time Protection (si aplica)
+- name: Ensure Defender Real-Time Protection is enabled
+  win_shell: Set-MpPreference -DisableRealtimeMonitoring $false
+  ignore_errors: yes
+
+# Enable all Firewall profiles (pero no bloqueamos RDP saliente)
+- name: Enable Windows Firewall (all profiles)
+  win_firewall:
+    state: enabled
+    profiles:
+      - Domain
+      - Private
+      - Public
+
+# Allow RDP port through Firewall (important!)
+- name: Ensure RDP port is allowed in Firewall
+  win_firewall_rule:
+    name: "Allow RDP"
+    localport: 3389
+    protocol: TCP
+    action: allow
+    direction: in
+    state: present
+    enabled: yes
+
+# Set secure execution policy
+- name: Set PowerShell execution policy to RemoteSigned
+  win_shell: Set-ExecutionPolicy RemoteSigned -Force
