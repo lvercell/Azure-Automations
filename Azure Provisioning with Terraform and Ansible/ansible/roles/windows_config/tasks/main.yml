@@ -1,0 +1,33 @@
+- name: 1️⃣ Unir al dominio
+  import_tasks: domain_join.yml
+
+- name: 2️⃣ Esperar reinicio tras unión al dominio
+  win_reboot:
+    msg: "Reiniciando tras unir al dominio"
+    pre_reboot_delay: 15
+  when: domain_join_result.reboot_required
+
+- name: 3️⃣ Verificar si la máquina está en el dominio
+  win_shell: |
+    (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
+  register: domain_check
+
+- name: 4️⃣ Mostrar estado de pertenencia a dominio
+  debug:
+    msg: "¿Miembro del dominio? {{ domain_check.stdout }}"
+
+- name: 5️⃣ Abortar si no está en dominio
+  fail:
+    msg: "❌ La VM no está en el dominio. Se detiene la ejecución."
+  when: domain_check.stdout != "True"
+
+- name: 6️⃣ Aplicar hardening
+  import_tasks: hardening.yml
+
+- name: 7️⃣ Instalar software
+  import_tasks: software_install.yml
+
+- name: 8️⃣ Eliminar usuario local 'Administrator'
+  win_user:
+    name: "Administrator"
+    state: absent
