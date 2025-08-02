@@ -1,9 +1,13 @@
 ---
-- name: Apply system hardening
-  include_tasks: hardening.yml
+- name: Windows configuration with Ansible
+  hosts: windows
+  gather_facts: no
+  tasks:
+    - name: Join the VM to the domain
+      import_tasks: roles/windows_config/tasks/domain_join.yml
 
-- name: Install required software
-  include_tasks: software_install.yml
+    - name: Apply hardening policies
+      import_tasks: roles/windows_config/tasks/hardening.yml
 
-- name: Join VM to domain
-  include_tasks: domain_join.yml
+    - name: Install required software
+      import_tasks: roles/windows_config/tasks/software_install.yml
