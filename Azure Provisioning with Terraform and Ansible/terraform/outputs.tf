@@ -1,14 +1,15 @@
 output "resource_group_name" {
-  value       = azurerm_resource_group.main.name
+  value = azurerm_resource_group.rg.name
 }
 
 output "vm_name" {
-  description = "The name of the deployed Windows virtual machine"
-  value       = azurerm_windows_virtual_machine.main.name
+  value = azurerm_windows_virtual_machine.vm.name
 }
 
+output "public_ip" {
+  value = azurerm_public_ip.pip.ip_address
+}
 
 output "rdp_port" {
-  description = "Custom RDP port configured in the NSG"
-  value       = "49999"
+  value = azurerm_network_interface.nic.ip_configuration[0].private_ip_address
 }

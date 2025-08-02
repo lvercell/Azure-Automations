@@ -69,3 +69,9 @@ variable "nic_name" {
   type        = string
   default     = "nic-avd"
 }
+
+variable "subnet_address_prefix" {
+  description = "Address prefix for the subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
