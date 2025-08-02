@@ -11,29 +11,30 @@ SUBNET_NAME="subnet-avd"
 BASTION_SUBNET_NAME="AzureBastionSubnet"
 BASTION_NAME="bastion-avd"
 BASTION_IP_NAME="bastion-ip"
-IP_NAME="ip-temp-ansible"
+TEMP_IP_NAME="ip-temp-ansible"
 
-# Obtener la IP pública de la notebook para reglas temporales
+# Obtener la IP pública de la notebook para las reglas NSG
 MY_IP=$(curl -s ifconfig.me)
-
 echo "🌐 Tu IP pública detectada: $MY_IP"
 
 echo "📡 Creando IP pública temporal..."
-az network public-ip create --resource-group "$RESOURCE_GROUP" --name "$IP_NAME" --sku "Standard"   --allocation-method Static --location "$LOCATION"
+az network public-ip create --resource-group "$RESOURCE_GROUP" --name "$TEMP_IP_NAME" --sku "Standard"   --allocation-method Static --location "$LOCATION"
 
-echo "🔗 Asociando IP pública a la NIC..."
-az network nic ip-config update   --name ipconfig1   --nic-name "$NIC_NAME"   --resource-group "$RESOURCE_GROUP"   --public-ip-address "$IP_NAME"
+echo "🔗 Asociando IP pública temporal a la NIC de la VM..."
+az network nic ip-config update   --name ipconfig1   --nic-name "$NIC_NAME"   --resource-group "$RESOURCE_GROUP"   --public-ip-address "$TEMP_IP_NAME"
 
 echo "🔐 Agregando reglas NSG temporales para RDP (3389) y WinRM (5986)..."
 az network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME"   --name Allow-RDP-Temp --priority 3001   --source-address-prefixes "$MY_IP" --destination-port-ranges 3389   --access Allow --protocol Tcp --direction Inbound
 
 az network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME"   --name Allow-WinRM-Temp --priority 3002   --source-address-prefixes "$MY_IP" --destination-port-ranges 5986   --access Allow --protocol Tcp --direction Inbound
 
-echo "💾 Obteniendo IP pública de la VM..."
-PUBLIC_IP=$(az network public-ip show --name "$IP_NAME" --resource-group "$RESOURCE_GROUP" --query ipAddress -o tsv)
+echo "💾 Detectando IP pública REAL asociada a la NIC..."
+REAL_VM_IP=$(az network public-ip show --ids $(az network nic show   --name "$NIC_NAME"   --resource-group "$RESOURCE_GROUP"   --query "ipConfigurations[0].publicIpAddress.id" -o tsv)   --query ipAddress -o tsv)
+
+echo "🧾 Usando IP pública real: $REAL_VM_IP"
 
 echo "[windows]" > ./hosts.ini
-echo "$PUBLIC_IP" >> ./hosts.ini
+echo "$REAL_VM_IP" >> ./hosts.ini
 cat <<EOF >> ./hosts.ini
 
 [windows:vars]
@@ -50,19 +51,13 @@ if ! command -v ansible-playbook &> /dev/null; then
     exit 1
 fi
 
-echo "🔄 Ejecutando playbooks: domain_join, hardening, software install..."
-cd "$(dirname "$0")/roles/windows_config/tasks"
-
-ansible-playbook domain_join.yml -i ../../../hosts.ini
-ansible-playbook hardening.yml -i ../../../hosts.ini
-ansible-playbook software_install.yml -i ../../../hosts.ini
-
-cd ../../../
+echo "🔄 Ejecutando playbook principal con main.yml..."
+ansible-playbook main.yml -i hosts.ini -vv
 
 echo "🧹 Limpiando reglas NSG y IP pública temporal..."
 az network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name Allow-RDP-Temp
 az network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name Allow-WinRM-Temp
 az network nic ip-config update --name ipconfig1 --nic-name "$NIC_NAME" --resource-group "$RESOURCE_GROUP" --remove publicIpAddress
-az network public-ip delete --name "$IP_NAME" --resource-group "$RESOURCE_GROUP"
+az network public-ip delete --name "$TEMP_IP_NAME" --resource-group "$RESOURCE_GROUP"
 
-echo "✅ Finalizado. La VM debería estar unida al dominio, securizada y con software básico instalado."
+echo "✅ Proceso finalizado."
