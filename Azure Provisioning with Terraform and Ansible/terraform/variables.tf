@@ -33,3 +33,39 @@ variable "vm_size" {
   type        = string
   default     = "Standard_B2ms"
 }
+
+variable "vnet_name" {
+  description = "Name of the virtual network"
+  type        = string
+  default     = "vnet-avd"
+}
+
+variable "vnet_address_space" {
+  description = "Address space for the virtual network"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "subnet_name" {
+  description = "Name of the subnet"
+  type        = string
+  default     = "subnet-avd"
+}
+
+variable "nsg_name" {
+  description = "Name of the network security group"
+  type        = string
+  default     = "nsg-avd"
+}
+
+variable "public_ip_name" {
+  description = "Name of the public IP"
+  type        = string
+  default     = "pip-avd"
+}
+
+variable "nic_name" {
+  description = "Name of the network interface"
+  type        = string
+  default     = "nic-avd"
+}
