@@ -13,5 +13,7 @@
       debug:
         msg: "Usuario: {{ domain_admin_user }} | Pass: {{ domain_admin_password }}"
 
-  roles:
-    - role: windows_config
+    - name: Ejecutar rol de configuración de Windows
+      include_role:
+        name: windows_config
+
