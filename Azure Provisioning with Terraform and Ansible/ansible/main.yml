@@ -1,1 +1,9 @@
+---
+- name: Apply system hardening
+  include_tasks: hardening.yml
 
+- name: Install required software
+  include_tasks: software_install.yml
+
+- name: Join VM to domain
+  include_tasks: domain_join.yml
