@@ -1,41 +1,70 @@
 #!/bin/bash
 
-# CONFIGURACIÓN INICIAL
-RESOURCE_GROUP="rg-avd-lab"
-VM_NAME="vm-avd-lab"
-NIC_NAME="nic-avd"
-NSG_NAME="nsg-avd"
-LOCATION="eastus"
-VNET_NAME="vnet-avd"
-SUBNET_NAME="subnet-avd"
-BASTION_SUBNET_NAME="AzureBastionSubnet"
-BASTION_NAME="bastion-avd"
-BASTION_IP_NAME="bastion-ip"
-TEMP_IP_NAME="ip-temp-ansible"
+set -e
 
-# Obtener la IP pública de la notebook para las reglas NSG
-MY_IP=$(curl -s ifconfig.me)
-echo "🌐 Tu IP pública detectada: $MY_IP"
+# 🌐 Get public IP of the user's machine
+USER_IP=$(curl -s ifconfig.me)
+echo "🌐 Your public IP is: $USER_IP"
 
-echo "📡 Creando IP pública temporal..."
-az network public-ip create --resource-group "$RESOURCE_GROUP" --name "$TEMP_IP_NAME" --sku "Standard"   --allocation-method Static --location "$LOCATION"
+# 📡 Create temporary public IP in Azure
+echo "📡 Creating temporary public IP..."
+az network public-ip create \
+  --resource-group rg-avd-lab \
+  --name ip-temp-ansible \
+  --sku Standard \
+  --allocation-method Static \
+  --query publicIp.ipAddress -o tsv
 
-echo "🔗 Asociando IP pública temporal a la NIC de la VM..."
-az network nic ip-config update   --name ipconfig1   --nic-name "$NIC_NAME"   --resource-group "$RESOURCE_GROUP"   --public-ip-address "$TEMP_IP_NAME"
+# 🔗 Attach the temp public IP to the NIC
+echo "🔗 Associating temp public IP to VM NIC..."
+az network nic ip-config update \
+  --name ipconfig1 \
+  --nic-name nic-avd \
+  --resource-group rg-avd-lab \
+  --public-ip-address ip-temp-ansible
 
-echo "🔐 Agregando reglas NSG temporales para RDP (3389) y WinRM (5986)..."
-az network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME"   --name Allow-RDP-Temp --priority 3001   --source-address-prefixes "$MY_IP" --destination-port-ranges 3389   --access Allow --protocol Tcp --direction Inbound
+# 🔐 Open NSG for RDP and WinRM (restricted to your IP)
+echo "🔐 Adding temporary NSG rules..."
+az network nsg rule create \
+  --resource-group rg-avd-lab \
+  --nsg-name nsg-avd \
+  --name Allow-RDP-Temp \
+  --priority 3001 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes "$USER_IP" \
+  --destination-port-ranges 3389
 
-az network nsg rule create --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME"   --name Allow-WinRM-Temp --priority 3002   --source-address-prefixes "$MY_IP" --destination-port-ranges 5986   --access Allow --protocol Tcp --direction Inbound
+az network nsg rule create \
+  --resource-group rg-avd-lab \
+  --nsg-name nsg-avd \
+  --name Allow-WinRM-Temp \
+  --priority 3002 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes "$USER_IP" \
+  --destination-port-ranges 5986
 
-echo "💾 Detectando IP pública REAL asociada a la NIC..."
-REAL_VM_IP=$(az network public-ip show --ids $(az network nic show   --name "$NIC_NAME"   --resource-group "$RESOURCE_GROUP"   --query "ipConfigurations[0].publicIpAddress.id" -o tsv)   --query ipAddress -o tsv)
+# 🔎 Get public IP assigned to the VM
+echo "🔎 Detecting actual public IP of the VM..."
+VM_PUBLIC_IP=$(az network public-ip show \
+  --resource-group rg-avd-lab \
+  --name ip-temp-ansible \
+  --query ipAddress -o tsv)
 
-echo "🧾 Usando IP pública real: $REAL_VM_IP"
+if [[ -z "$VM_PUBLIC_IP" ]]; then
+  echo "❌ Error: Could not retrieve public IP. Aborting."
+  exit 1
+fi
 
-echo "[windows]" > ./hosts.ini
-echo "$REAL_VM_IP" >> ./hosts.ini
-cat <<EOF >> ./hosts.ini
+echo "✅ Public IP detected: $VM_PUBLIC_IP"
+
+# 📝 Update hosts.ini file with the detected IP
+echo "[windows]" > hosts.ini
+echo "$VM_PUBLIC_IP" >> hosts.ini
+cat <<EOF >> hosts.ini
 
 [windows:vars]
 ansible_user=lucas
@@ -45,19 +74,38 @@ ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
 EOF
 
-echo "🔍 Verificando si Ansible está instalado..."
+# 🔍 Check if Ansible is installed
 if ! command -v ansible-playbook &> /dev/null; then
-    echo "❌ Error: ansible-playbook no está disponible. Instalalo con: pip install ansible"
+    echo "❌ Ansible is not installed. Please install it first."
     exit 1
 fi
 
-echo "🔄 Ejecutando playbook principal con main.yml..."
-ansible-playbook main.yml -i hosts.ini -vv
+# ⚙️ Run WinRM setup playbook
+echo "⚙️ Running winrm_setup.yml to enable WinRM..."
+ansible-playbook winrm_setup.yml -i hosts.ini
 
-echo "🧹 Limpiando reglas NSG y IP pública temporal..."
-az network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name Allow-RDP-Temp
-az network nsg rule delete --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" --name Allow-WinRM-Temp
-az network nic ip-config update --name ipconfig1 --nic-name "$NIC_NAME" --resource-group "$RESOURCE_GROUP" --remove publicIpAddress
-az network public-ip delete --name "$TEMP_IP_NAME" --resource-group "$RESOURCE_GROUP"
+# 🚀 Run main Ansible playbook
+echo "🚀 Running main.yml with Ansible..."
+ansible-playbook main.yml -i hosts.ini
 
-echo "✅ Proceso finalizado."
+# 🧹 Ask for cleanup
+read -p "🧹 Do you want to clean up temporary resources? (y/n): " DO_CLEANUP
+if [[ "$DO_CLEANUP" =~ ^[Yy]$ ]]; then
+  echo "🔻 Removing NSG rules and temp IP..."
+  az network nsg rule delete --resource-group rg-avd-lab --nsg-name nsg-avd --name Allow-RDP-Temp || true
+  az network nsg rule delete --resource-group rg-avd-lab --nsg-name nsg-avd --name Allow-WinRM-Temp || true
+
+  az network nic ip-config update \
+    --name ipconfig1 \
+    --nic-name nic-avd \
+    --resource-group rg-avd-lab \
+    --remove publicIpAddress || true
+
+  az network public-ip delete \
+    --name ip-temp-ansible \
+    --resource-group rg-avd-lab || true
+
+  echo "✅ Cleanup completed."
+else
+  echo "⏳ Temporary resources were not deleted. Remember to clean up manually later."
+fi
