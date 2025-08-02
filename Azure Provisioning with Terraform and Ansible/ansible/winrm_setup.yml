@@ -1,0 +1,39 @@
+# Nuevo playbook: winrm_setup.yml
+---
+- name: Enable WinRM over HTTPS on Windows VM
+  hosts: all
+  gather_facts: no
+  vars:
+    ansible_user: lucas
+    ansible_password: "@Lucas2024"
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+
+  tasks:
+    - name: Enable WinRM service
+      ansible.windows.win_service:
+        name: WinRM
+        start_mode: auto
+        state: started
+
+    - name: Create WinRM listener on HTTPS if not exists
+      ansible.windows.win_shell: |
+        $cert = Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -match "CN=.*" } | Select-Object -First 1
+        if (-not (winrm enumerate winrm/config/Listener | Select-String -Pattern "Transport = HTTPS")) {
+          winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{{Hostname='*'; CertificateThumbprint='$($cert.Thumbprint)'}}"
+        }
+      register: winrm_result
+
+    - name: Open port 5986 in firewall
+      community.windows.win_firewall_rule:
+        name: "WinRM over HTTPS"
+        localport: 5986
+        protocol: tcp
+        action: allow
+        direction: in
+        state: present
+
+    - name: Print result of WinRM listener creation
+      debug:
+        var: winrm_result.stdout_lines
