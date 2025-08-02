@@ -1,82 +1,102 @@
-resource "azurerm_resource_group" "main" {
-  name     = "rg-avd-lab"
+# Archivo: terraform/main.tf
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
   location = var.location
 }
 
-resource "azurerm_virtual_network" "main" {
-  name                = "vnet-avd"
-  address_space       = ["10.0.0.0/16"]
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
+resource "azurerm_virtual_network" "vnet" {
+  name                = var.vnet_name
+  address_space       = [var.vnet_address_space]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_subnet" "main" {
-  name                 = "subnet-avd"
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.1.0/24"]
+resource "azurerm_subnet" "subnet" {
+  name                 = var.subnet_name
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_address_prefix]
 }
 
-resource "azurerm_network_security_group" "main" {
-  name                = "nsg-avd"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
+resource "azurerm_network_security_group" "nsg" {
+  name                = var.nsg_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name                       = "Allow-RDP"
+    name                       = "AllowRDP"
     priority                   = 1001
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-    destination_port_range     = "3389"
+  }
+
+  security_rule {
+    name                       = "AllowWinRM"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
     source_port_range          = "*"
+    destination_port_range     = "5986"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 }
 
-resource "azurerm_network_interface" "main" {
-  name                = "nic-avd"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
+resource "azurerm_network_interface" "nic" {
+  name                = var.nic_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.main.id
+    subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
-    # IP pública no definida explícitamente
+    public_ip_address_id          = azurerm_public_ip.pip.id
   }
+
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.main.id
-  network_security_group_id = azurerm_network_security_group.main.id
+resource "azurerm_public_ip" "pip" {
+  name                = var.public_ip_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
-resource "azurerm_windows_virtual_machine" "main" {
-  name                  = var.vm_name
-  resource_group_name   = azurerm_resource_group.main.name
-  location              = var.location
-  size                  = var.vm_size
-  admin_username        = var.vm_admin_username
-  admin_password        = var.vm_admin_password
-  network_interface_ids = [azurerm_network_interface.main.id]
-  provision_vm_agent    = true
+resource "azurerm_windows_virtual_machine" "vm" {
+  name                = var.vm_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  size                = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  network_interface_ids = [azurerm_network_interface.nic.id]
 
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    name                 = "disk-${var.vm_name}"
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsDesktop"
-    offer     = "windows-11"
-    sku       = "win11-21h2-ent"
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
     version   = "latest"
   }
 
-  tags = {
-    environment = "lab"
-    owner       = "Lucas"
-  }
+  custom_data = base64encode(file("${path.module}/vm-winrm.ps1"))
 }
