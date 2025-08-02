@@ -68,7 +68,7 @@ cat <<EOF >> hosts.ini
 
 [windows:vars]
 ansible_user=lucas
-ansible_password='@Lucas2024'
+ANSIBLE_PASSWORD="Admin\$123456.#"
 ansible_port=5986
 ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
@@ -81,8 +81,8 @@ if ! command -v ansible-playbook &> /dev/null; then
 fi
 
 # ⚙️ Run WinRM setup playbook
-echo "⚙️ Running winrm_setup.yml to enable WinRM..."
-ansible-playbook winrm_setup.yml -i hosts.ini
+#echo "⚙️ Running winrm_setup.yml to enable WinRM..."
+#ansible-playbook winrm_setup.yml -i hosts.ini
 
 # 🚀 Run main Ansible playbook
 echo "🚀 Running main.yml with Ansible..."
