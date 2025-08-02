@@ -1,52 +1,33 @@
----
-# Rename built-in Administrator account (opcional, si ya creaste otro usuario)
-- name: Rename local Administrator account
-  win_user:
-    name: Administrador
-    new_name: adminlocal
-  ignore_errors: yes  # Por si ya fue renombrado
+- name: Obtener nombre del dominio actual
+  win_shell: |
+    $env:USERDOMAIN
+  register: userdomain_check
 
-# Ensure RDP port is standard (puede cambiarse más adelante)
-- name: Ensure RDP port is set to 3389
-  win_regedit:
-    path: HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp
-    name: PortNumber
-    data: 3389
-    type: dword
-  register: rdp_port_config
+- name: Mostrar dominio actual detectado
+  debug:
+    var: userdomain_check.stdout
 
-# Enable Defender features (si están disponibles)
-- name: Enable Windows Defender features
+- name: Abortar si la VM no está en el dominio "lab"
+  fail:
+    msg: "❌ La máquina no pertenece al dominio lab.local. Abortando hardening por seguridad."
+  when: userdomain_check.stdout != "lab"
+
+# Aquí va tu lógica real de hardening
+- name: Deshabilitar SMBv1
   win_feature:
-    name: Windows-Defender-Features
-    state: present
-  ignore_errors: yes
+    name: FS-SMB1
+    state: absent
 
-# Enable Real-Time Protection (si aplica)
-- name: Ensure Defender Real-Time Protection is enabled
-  win_shell: Set-MpPreference -DisableRealtimeMonitoring $false
-  ignore_errors: yes
-
-# Enable all Firewall profiles (pero no bloqueamos RDP saliente)
-- name: Enable Windows Firewall (all profiles)
-  win_firewall:
+- name: Forzar contraseñas fuertes
+  win_security_policy:
+    name: PasswordComplexity
     state: enabled
-    profiles:
-      - Domain
-      - Private
-      - Public
 
-# Allow RDP port through Firewall (important!)
-- name: Ensure RDP port is allowed in Firewall
-  win_firewall_rule:
-    name: "Allow RDP"
-    localport: 3389
-    protocol: TCP
-    action: allow
-    direction: in
-    state: present
-    enabled: yes
+# Agregá todas las medidas adicionales que tengas acá...
 
-# Set secure execution policy
-- name: Set PowerShell execution policy to RemoteSigned
-  win_shell: Set-ExecutionPolicy RemoteSigned -Force
+# Solo si está en dominio, se elimina el usuario local
+- name: Eliminar cuenta local "Administrator"
+  win_user:
+    name: Administrator
+    state: absent
+  when: userdomain_check.stdout == "lab"
