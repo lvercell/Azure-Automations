@@ -1,13 +1,17 @@
----
 - name: Windows configuration with Ansible
   hosts: windows
   gather_facts: no
+  vars:
+    ansible_user: "{{ lookup('env', 'ansible_user') }}"
+    ansible_password: "{{ lookup('env', 'ansible_password') }}"
+    domain_admin_user: "{{ lookup('env', 'domain_admin_user') }}"
+    domain_admin_password: "{{ lookup('env', 'domain_admin_password') }}"
+    local_admin_user: "Administrator"
+
   tasks:
-    - name: Join the VM to the domain
-      import_tasks: roles/windows_config/tasks/domain_join.yml
+    - name: Mostrar credenciales usadas
+      debug:
+        msg: "Usuario: {{ domain_admin_user }} | Pass: {{ domain_admin_password }}"
 
-    - name: Apply hardening policies
-      import_tasks: roles/windows_config/tasks/hardening.yml
-
-    - name: Install required software
-      import_tasks: roles/windows_config/tasks/software_install.yml
+  roles:
+    - role: windows_config
