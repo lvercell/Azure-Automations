@@ -29,6 +29,7 @@ The `apply-ansible-with-bastion.sh` script:
 5. **Cleans up everything** after execution (firewall rules, IP, etc.)
 6. Ensures **Azure Bastion** is deployed for secure future access
 
+
 ---
 
 ## 📁 Role Tasks Included
@@ -59,7 +60,7 @@ You should not run these files individually – always execute from this folder 
 - Python 3 + Ansible + required WinRM dependencies
 - Network access to AD + domain credentials
 
----
+```plaintext
 
 ## 📦 Structure Overview
 
@@ -73,15 +74,15 @@ Azure Provisioning with Terraform and Ansible/
 │ ├── hosts.ini
 │ ├── main.yml
 │ └── roles/
-│ └── windows_config/
-│ └── tasks/
-│ ├── domain_join.yml
-│ ├── hardening.yml
-│ ├── software_install.yml
+│ │  └── windows_config/
+│ │     └── tasks/
+│ │        ├── domain_join.yml
+│ │        ├── hardening.yml
+│ │        └── software_install.yml
 │ └── main.yml
+│ └── README.md # This file
 
-
----
+```
 
 ## 📞 Support
 
