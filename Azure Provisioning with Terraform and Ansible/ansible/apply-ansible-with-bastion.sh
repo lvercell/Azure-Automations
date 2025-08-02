@@ -88,6 +88,12 @@ fi
 echo "🚀 Running main.yml with Ansible..."
 ansible-playbook main.yml -i hosts.ini
 
+if [ $? -ne 0 ]; then
+  echo "❌ Ansible playbook failed. Aborting..."
+  exit 1
+fi
+
+echo "✅ Ansible playbook ran successfully. Proceeding to optional cleanup..."
 # 🧹 Ask for cleanup
 read -p "🧹 Do you want to clean up temporary resources? (y/n): " DO_CLEANUP
 if [[ "$DO_CLEANUP" =~ ^[Yy]$ ]]; then
