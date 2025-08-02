@@ -80,9 +80,11 @@ if ! command -v ansible-playbook &> /dev/null; then
     exit 1
 fi
 
-# ⚙️ Run WinRM setup playbook
-#echo "⚙️ Running winrm_setup.yml to enable WinRM..."
-#ansible-playbook winrm_setup.yml -i hosts.ini
+# 🔐 Set Ansible credentials as environment variables
+export ansible_user="Administrator"
+export ansible_password="Admin\$123456.#"
+export domain_admin_user="LAB\\Administrator"
+export domain_admin_password="LetmeIn\$2025"
 
 # 🚀 Run main Ansible playbook
 echo "🚀 Running main.yml with Ansible..."
